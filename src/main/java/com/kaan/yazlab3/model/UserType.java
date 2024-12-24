@@ -10,13 +10,17 @@ package com.kaan.yazlab3.model;
  */
 public enum UserType {
 
-    NORMAL(2),
-    PREMIUM(1);
+    NORMAL(10),
+    PREMIUM(15);
 
     private int priority;
 
     private UserType(int priority) {
         this.priority = priority;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 
 }

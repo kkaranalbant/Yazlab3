@@ -15,18 +15,18 @@ import org.hibernate.Transaction;
  * @author root
  */
 public class OrderRepo implements ICrud<Order> {
-    
-    private static ICrud<Order> orderRepo ;
-    
-    private OrderRepo () {
-        
+
+    private static ICrud<Order> orderRepo;
+
+    private OrderRepo() {
+
     }
-    
-    public static ICrud<Order> getInstance () {
+
+    public static ICrud<Order> getInstance() {
         if (orderRepo == null) {
-            orderRepo = new OrderRepo () ;
+            orderRepo = new OrderRepo();
         }
-        return orderRepo ;
+        return orderRepo;
     }
 
     @Override
@@ -91,6 +91,19 @@ public class OrderRepo implements ICrud<Order> {
     public List<Order> getAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("from Book", Order.class).list();
+        }
+    }
+
+    public Order getByUserIdAndProductId(Long userId, Long productId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            String hql = "FROM Order o WHERE o.user.id = :userId AND o.product.id = :productId";
+            return session.createQuery(hql, Order.class)
+                    .setParameter("userId", userId)
+                    .setParameter("productId", productId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

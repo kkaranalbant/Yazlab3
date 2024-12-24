@@ -6,6 +6,7 @@ package com.kaan.yazlab3.model;
 
 import com.kaan.yazlab3.service.ConcurrentPurchaseManager;
 import com.kaan.yazlab3.service.OrderService;
+import java.time.Instant;
 
 /**
  *
@@ -21,13 +22,16 @@ public class PurchaseProcess implements Runnable, Comparable<PurchaseProcess> {
 
     private Integer priority;
 
+    private Long timestamp;
+
     private OrderService orderService;
 
     private PurchaseProcess(User user, Product product, Integer quantity) {
         this.user = user;
         this.product = product;
         this.quantity = quantity;
-        this.priority = 0;
+        this.priority = user.getUserType().getPriority();
+        timestamp = Instant.now().toEpochMilli();
         orderService = OrderService.getInstance();
     }
 
@@ -38,7 +42,11 @@ public class PurchaseProcess implements Runnable, Comparable<PurchaseProcess> {
 
     @Override
     public int compareTo(PurchaseProcess o) {
-        return Integer.compare(this.priority, o.priority);
+        int priorityComparison = Integer.compare(this.priority, o.priority);
+        if (priorityComparison != 0) {
+            return priorityComparison;
+        }
+        return Long.compare(this.timestamp, o.timestamp);
     }
 
     public static void createProcess(User user, Product product, Integer quantity) {

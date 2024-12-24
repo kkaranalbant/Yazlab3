@@ -101,4 +101,55 @@ public class OrderService {
         return orderRepo.getAll().stream().filter((Order order) -> order.getProduct().getId() == productId).collect(Collectors.toList());
     }
 
+    public List<Order> getAll() {
+        return orderRepo.getAll();
+    }
+
+    public Order getByUserIdAndProductId(Long userId, Long productId) throws OrderException {
+        OrderRepo orderRepoo = (OrderRepo) OrderRepo.getInstance();
+        Order order = orderRepoo.getByUserIdAndProductId(userId, productId);
+        if (order == null) {
+            throw new OrderException("Order Not Found");
+        }
+        orderRepoo = null;
+        System.gc();
+        return order;
+    }
+
+    public void confirmById(Long id) throws OrderException {
+        Order order = orderRepo.getById(id);
+        if (order == null) {
+            throw new OrderException("Order Not Found");
+        }
+        if (order.getOrderStatus().equals(OrderStatus.OK)) {
+            throw new OrderException("Order Already Confirmed");
+        }
+        order.setOrderStatus(OrderStatus.OK);
+        orderRepo.save(order);
+    }
+
+    public void cancelById(Long id) throws OrderException {
+        Order order = orderRepo.getById(id);
+        if (order == null) {
+            throw new OrderException("Order Not Found");
+        }
+        if (order.getOrderStatus().equals(OrderStatus.CANCELLED)) {
+            throw new OrderException("Order Already Cancelled");
+        }
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepo.save(order);
+    }
+
+    public void waitById(Long id) throws OrderException {
+        Order order = orderRepo.getById(id);
+        if (order == null) {
+            throw new OrderException("Order Not Found");
+        }
+        if (order.getOrderStatus().equals(OrderStatus.WAITING)) {
+            throw new OrderException("Order is Already Waiting");
+        }
+        order.setOrderStatus(OrderStatus.WAITING);
+        orderRepo.save(order);
+    }
+
 }
