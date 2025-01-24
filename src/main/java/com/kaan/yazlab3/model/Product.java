@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
  * @author root
  */
 @Entity
-@Table(name = "products")
+@Table(name = "product")
 public class Product extends BaseEntity {
         
     private String name ; 
@@ -44,7 +44,6 @@ public class Product extends BaseEntity {
     public void setPrice(Float price) {
         this.price = price;
     }
-    
     
     
     

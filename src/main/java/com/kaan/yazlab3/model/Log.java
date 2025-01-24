@@ -4,10 +4,12 @@
  */
 package com.kaan.yazlab3.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -16,25 +18,32 @@ import java.time.LocalDateTime;
  * @author root
  */
 @Entity
-@Table(name = "logs")
+@Table(name = "log")
 public class Log extends BaseEntity {
 
     @JoinColumn
+    @OneToOne
     private User user;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "user_type")
     private UserType userType;
 
     @JoinColumn
+    @OneToOne
     private Order order;
 
+    @Column(name = "order_quantity")
     private Integer orderQuantity;
 
+    @Column(name = "log_date")
     private LocalDateTime logDate;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "log_type")
     private LogType logType;
 
+    @Column(name = "log_details")
     private String logDetails;
 
     public User getUser() {

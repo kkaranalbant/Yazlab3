@@ -4,8 +4,10 @@
              http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd" 
              version="2.1">
     <persistence-unit name="defaultPU" transaction-type="RESOURCE_LOCAL">
-        <class>com.example.entity.YourEntity</class> <!-- Entity sınıflarınızı buraya ekleyin -->
-        
+        <class>com.kaan.yazlab3.model.Log</class> <!-- Entity sınıflarınızı buraya ekleyin -->
+        <class>com.kaan.yazlab3.model.Order</class>
+        <class>com.kaan.yazlab3.model.Product</class>
+        <class>com.kaan.yazlab3.model.User</class> 
         <properties>
             <!-- Veritabanı bağlantı ayarları -->
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
@@ -14,7 +16,7 @@
             <property name="jakarta.persistence.jdbc.password" value="254236"/>
             
             <!-- Hibernate ayarları -->
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>

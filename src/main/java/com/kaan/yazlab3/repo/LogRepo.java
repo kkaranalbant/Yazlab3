@@ -33,7 +33,7 @@ public class LogRepo implements ICrud<Log>{
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.save(entity);
+            session.saveOrUpdate(entity);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -89,7 +89,7 @@ public class LogRepo implements ICrud<Log>{
     @Override
     public List<Log> getAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("from Book", Log.class).list();
+            return session.createQuery("from Log", Log.class).list();
         }
     }
 }

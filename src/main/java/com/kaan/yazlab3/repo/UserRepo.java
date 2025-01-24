@@ -4,7 +4,6 @@
  */
 package com.kaan.yazlab3.repo;
 
-import com.kaan.yazlab3.model.Product;
 import com.kaan.yazlab3.model.User;
 import java.util.List;
 import org.hibernate.Session;
@@ -34,7 +33,7 @@ public class UserRepo implements ICrud<User> {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.save(entity);
+            session.saveOrUpdate(entity);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -87,10 +86,21 @@ public class UserRepo implements ICrud<User> {
         }
     }
 
+    public User getByUsername(String username) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM User WHERE username = :username", User.class)
+                    .setParameter("username", username).getSingleResult();
+            //.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @Override
     public List<User> getAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("from Book", User.class).list();
+            return session.createQuery("from User", User.class).list();
         }
     }
 

@@ -4,6 +4,7 @@
  */
 package com.kaan.yazlab3.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,8 +15,13 @@ import jakarta.persistence.Table;
  * @author root
  */
 @Entity
-@Table(name = "users")
-public class User extends BaseEntity{
+@Table(name = "user")
+public class User extends BaseEntity {
+
+    @Column(unique=true)
+    private String username;
+
+    private String password;
 
     private String name;
 
@@ -56,6 +62,22 @@ public class User extends BaseEntity{
 
     public void setTotalSpent(Float totalSpent) {
         this.totalSpent = totalSpent;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
 }

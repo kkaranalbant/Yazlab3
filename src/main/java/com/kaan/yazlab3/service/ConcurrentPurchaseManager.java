@@ -21,10 +21,14 @@ public class ConcurrentPurchaseManager {
     private final ThreadPoolExecutor threadPoolExecutor;
 
     private final OrderService orderService;
+    
+    private final LogService logService ;
 
     private boolean isRunning;
 
     private ConcurrentPurchaseManager() {
+        
+        logService = LogService.getInstance() ;
 
         queue = new PriorityBlockingQueue();
 
@@ -33,7 +37,7 @@ public class ConcurrentPurchaseManager {
         orderService = OrderService.getInstance();
 
         isRunning = false;
-
+        
     }
 
     public static ConcurrentPurchaseManager getInstance() {

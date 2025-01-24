@@ -20,8 +20,11 @@ public class ProductService {
     private static ProductService productService;
 
     private final ICrud<Product> productRepo;
+    
+    private final LogService logService ;
 
     private ProductService() {
+        logService = LogService.getInstance() ;
         this.productRepo = ProductRepo.getInstance();
     }
 

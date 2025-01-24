@@ -12,6 +12,7 @@ import com.kaan.yazlab3.model.User;
 import com.kaan.yazlab3.repo.ICrud;
 import com.kaan.yazlab3.repo.LogRepo;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -57,6 +58,10 @@ public class LogService {
             throw new LogException ("Log Not Found") ;
         }
         logRepo.deleteById(id);
+    }
+    
+    public List<Log> getAll () {
+        return logRepo.getAll() ;
     }
     
 }

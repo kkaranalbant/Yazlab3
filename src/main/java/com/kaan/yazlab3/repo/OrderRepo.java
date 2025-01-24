@@ -6,6 +6,7 @@ package com.kaan.yazlab3.repo;
 
 import com.kaan.yazlab3.model.Log;
 import com.kaan.yazlab3.model.Order;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -34,7 +35,7 @@ public class OrderRepo implements ICrud<Order> {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.save(entity);
+            session.saveOrUpdate(entity);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -90,16 +91,30 @@ public class OrderRepo implements ICrud<Order> {
     @Override
     public List<Order> getAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("from Book", Order.class).list();
+            return session.createQuery("from Order", Order.class).list();
         }
     }
 
-    public Order getByUserIdAndProductId(Long userId, Long productId) {
+    public List<Order> getByUserIdAndProductId(Long userId, Long productId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             String hql = "FROM Order o WHERE o.user.id = :userId AND o.product.id = :productId";
             return session.createQuery(hql, Order.class)
                     .setParameter("userId", userId)
                     .setParameter("productId", productId)
+                    .getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Order getByUserIdAndProductIdAndOrderDateTime(Long userId, Long productId, LocalDateTime orderDateTime) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            String hql = "FROM Order o WHERE o.user.id = :userId AND o.product.id = :productId AND o.orderDate = :orderDateTime";
+            return session.createQuery(hql, Order.class)
+                    .setParameter("userId", userId)
+                    .setParameter("productId", productId)
+                    .setParameter("orderDateTime", orderDateTime)
                     .uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();

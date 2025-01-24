@@ -5,6 +5,8 @@
 package com.kaan.yazlab3.service;
 
 import com.kaan.yazlab3.exception.OrderException;
+import com.kaan.yazlab3.model.ConfirmProcess;
+import com.kaan.yazlab3.model.LogType;
 import com.kaan.yazlab3.model.Order;
 import com.kaan.yazlab3.model.OrderStatus;
 import com.kaan.yazlab3.model.Product;
@@ -29,7 +31,10 @@ public class OrderService {
 
     private ICrud<Order> orderRepo;
 
+    private final LogService logService;
+
     private OrderService() {
+        logService = LogService.getInstance();
         orderRepo = OrderRepo.getInstance();
         productService = ProductService.getInstance();
         userService = UserService.getInstance();
@@ -61,12 +66,21 @@ public class OrderService {
         order.setTotalPrice(quantity * product.getPrice());
         order.setQuantity(quantity);
         order.setProduct(product);
-        order.setOrderStatus(OrderStatus.OK);
+        order.setOrderStatus(OrderStatus.WAITING);
+        LocalDateTime orderDate = LocalDateTime.now();
         order.setOrderDate(LocalDateTime.now());
         userService.premiumCheck(user);
         userService.saveUser(user);
         productService.saveProduct(product);
         orderRepo.save(order);
+        ConfirmProcess.createConfirmProcess(user, product, orderDate);
+        StringBuilder logDetailsSb = new StringBuilder();
+        logDetailsSb.append(user.getId()).append(" id numaralı kullanıcı ")
+                .append(product.getId()).append(" id numarali üründen ").append(order.getQuantity())
+                .append(" adet sipariş verdi.\nSiparis No : ")
+                .append(getByUserIdAndProductIdAndOrderDateTime(user.getId(), product.getId(), orderDate).getId())
+                .append("\nFiyat: ").append(quantity * product.getPrice());
+        logService.save(user, order, LogType.INFO, logDetailsSb.toString());
     }
 
     public void deleteByUserId(Long userId) {
@@ -105,9 +119,20 @@ public class OrderService {
         return orderRepo.getAll();
     }
 
-    public Order getByUserIdAndProductId(Long userId, Long productId) throws OrderException {
+    public List<Order> getByUserIdAndProductId(Long userId, Long productId) throws OrderException {
         OrderRepo orderRepoo = (OrderRepo) OrderRepo.getInstance();
-        Order order = orderRepoo.getByUserIdAndProductId(userId, productId);
+        List<Order> orders = orderRepoo.getByUserIdAndProductId(userId, productId);
+        if (orders.isEmpty()) {
+            throw new OrderException("Order Not Found");
+        }
+        orderRepoo = null;
+        System.gc();
+        return orders;
+    }
+
+    public Order getByUserIdAndProductIdAndOrderDateTime(Long userId, Long productId, LocalDateTime orderDateTime) throws OrderException {
+        OrderRepo orderRepoo = (OrderRepo) OrderRepo.getInstance();
+        Order order = orderRepoo.getByUserIdAndProductIdAndOrderDateTime(userId, productId, orderDateTime);
         if (order == null) {
             throw new OrderException("Order Not Found");
         }
@@ -137,6 +162,7 @@ public class OrderService {
             throw new OrderException("Order Already Cancelled");
         }
         order.setOrderStatus(OrderStatus.CANCELLED);
+        logService.save(order.getUser(), order, LogType.INFO, id + " id numaralı siparis iptal edildi.");
         orderRepo.save(order);
     }
 
@@ -149,7 +175,15 @@ public class OrderService {
             throw new OrderException("Order is Already Waiting");
         }
         order.setOrderStatus(OrderStatus.WAITING);
+        logService.save(order.getUser(), order, LogType.INFO, id + " id numaralı siparis bekletiliyor.");
         orderRepo.save(order);
+    }
+
+    public void addOthersToQueue() {
+        List<Order> ordersToAdd = getAll().stream().filter((order) -> order.getOrderStatus().equals(OrderStatus.WAITING)).collect(Collectors.toList());
+        for (Order order : ordersToAdd) {
+            ConfirmProcess.createOldConfirmProcess(order.getUser(), order.getProduct(), order.getOrderDate());
+        }
     }
 
 }

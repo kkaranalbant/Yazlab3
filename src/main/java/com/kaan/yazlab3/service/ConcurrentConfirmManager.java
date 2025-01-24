@@ -5,6 +5,8 @@
 package com.kaan.yazlab3.service;
 
 import com.kaan.yazlab3.model.ConfirmProcess;
+import com.kaan.yazlab3.model.LogType;
+import com.kaan.yazlab3.model.Order;
 import java.time.Instant;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -24,7 +26,10 @@ public class ConcurrentConfirmManager {
 
     private final OrderService orderService;
 
+    private final LogService logService;
+
     private ConcurrentConfirmManager() {
+        logService = LogService.getInstance();
         queue = new PriorityBlockingQueue<>();
         executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, queue);
         orderService = OrderService.getInstance();
@@ -40,7 +45,7 @@ public class ConcurrentConfirmManager {
         }
         return concurrentConfirmManager;
     }
-    
+
     // admin confirm all butonuna bastıgında oncelıkle onay bekleyen butun orderlar ıcın confirmprocess nesnesi olusturulacak daha sonra bu metot calıstırılacak
     // her bir confirm process active olmalı
     public synchronized void confirmAll() {
@@ -62,8 +67,12 @@ public class ConcurrentConfirmManager {
             while (!queue.isEmpty()) {
                 try {
                     ConfirmProcess task = (ConfirmProcess) queue.poll();
+                    Order order = task.getOrderService()
+                            .getByUserIdAndProductIdAndOrderDateTime(task.getUser().getId(), task.getProduct().getId(), task.getOrderDateTime());
                     if (task != null && task.isIsActive()) {
                         executor.execute(task);
+                        task.setIsActive(false);
+                        logService.save(task.getUser(), order, LogType.INFO, order.getId() + " id numaralı siparis onaylandı" + "Priority : "+task.getPriority());
                     }
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();

@@ -34,7 +34,7 @@ public class ProductRepo implements ICrud<Product> {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.save(entity);
+            session.saveOrUpdate(entity);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -90,7 +90,7 @@ public class ProductRepo implements ICrud<Product> {
     @Override
     public List<Product> getAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("from Book", Product.class).list();
+            return session.createQuery("from Product", Product.class).list();
         }
     }
 
